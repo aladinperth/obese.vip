@@ -1,1 +1,330 @@
+if game.PlaceId ~= 9825515356 then return end
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Backpack = LocalPlayer:WaitForChild("Backpack")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local dataFolder = LocalPlayer:FindFirstChild("DataFolder")
+
+getgenv().BulletChanger = {
+    DoubleBarrel = "Rainbow",
+    Revolver = "Rainbow",
+    Shotgun = "Rainbow",
+    SMG = "Rainbow"
+}
+
+local Subscription = {
+    Enabled = true,
+    SubscriptionData = 16,
+    SubscriptionStreak = 53
+}
+
+local Skins = {
+    Enabled = true,
+    ["DoubleBarrel"] = "Ascension",
+    ["Revolver"] = "Ascension",
+    ["TacticalShotgun"] = "Ascension",
+    ["SMG"] = "Ascension",
+    ["Shotgun"] = "Ascension",
+    Special = {
+        ["Knife"] = "Beta"
+    }
+}
+
+if dataFolder then
+    local subscriptionFolder = dataFolder:FindFirstChild("Subscription")
+
+    if subscriptionFolder then
+        local hasSubscription = subscriptionFolder:FindFirstChild("HasSubscription")
+        if hasSubscription and hasSubscription:IsA("BoolValue") then
+            hasSubscription.Value = Subscription.Enabled
+        end
+
+        local subscriptionData = subscriptionFolder:FindFirstChild("SubscriptionData")
+        if subscriptionData and subscriptionData:IsA("NumberValue") then
+            subscriptionData.Value = Subscription.SubscriptionData
+        end
+
+        local subscriptionStreak = subscriptionFolder:FindFirstChild("SubscriptionStreak")
+        if subscriptionStreak and subscriptionStreak:IsA("NumberValue") then
+            subscriptionStreak.Value = Subscription.SubscriptionStreak
+        end
+    end
+
+    local inventoryData = dataFolder:FindFirstChild("InventoryData")
+
+    if inventoryData then
+        local bulletBeams = inventoryData:FindFirstChild("BulletBeams")
+        local equippedBulletBeams = dataFolder:FindFirstChild("EquippedBulletBeams")
+
+        if bulletBeams and bulletBeams:IsA("StringValue") then
+            local bulletBeamData = {}
+            for weapon, skin in pairs(getgenv().BulletChanger) do
+                local code
+                if weapon == "DoubleBarrel" then
+                    code = "109d1326878cc594bc1bb42d126250810999782f"
+                elseif weapon == "Revolver" then
+                    code = "539db315b53f77390c0aa74773158e25bedcdd6e"
+                elseif weapon == "Shotgun" then
+                    code = "b415a7273aa86cbc2adc445fde5435eb5afababa"
+                elseif weapon == "SMG" then
+                    code = "005af87725b42ac4ca8103d11af6bf0c7d55f7b3"
+                elseif weapon == "TacticalShotgun" then
+                    code = "109d1326878cc594bc1bb42d126250810999782f"
+                end
+                if code then
+                    bulletBeamData[code] = { Name = skin }
+                end
+            end
+            bulletBeams.Value = game:GetService("HttpService"):JSONEncode(bulletBeamData)
+        end
+
+        if equippedBulletBeams and equippedBulletBeams:IsA("StringValue") then
+            local equippedData = {}
+            equippedData["[DoubleBarrel]"] = "109d1326878cc594bc1bb42d126250810999782f"
+            equippedData["[Revolver]"] = "539db315b53f77390c0aa74773158e25bedcdd6e"
+            equippedData["[TacticalShotgun]"] = "109d1326878cc594bc1bb42d126250810999782f"
+            equippedData["[SMG]"] = "005af87725b42ac4ca8103d11af6bf0c7d55f7b3"
+            equippedData["[Shotgun]"] = "b415a7273aa86cbc2adc445fde5435eb5afababa"
+
+            equippedBulletBeams.Value = game:GetService("HttpService"):JSONEncode(equippedData)
+        end
+    end
+end
+
+local function weldingParts(part0, part1)
+    local weld = Instance.new("WeldConstraint")
+    weld.Part0 = part0
+    weld.Part1 = part1
+    weld.Parent = part0
+end
+
+local function applySkin(originalWeapon, newModel)
+    local handle = originalWeapon:FindFirstChild("Handle")
+    if not handle then return end
+
+    local clone = newModel:Clone()
+    if not clone.PrimaryPart then return end
+
+    for _, part in ipairs(clone:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+            part.Anchored = false
+            part.Massless = true
+            part.Transparency = 0
+        end
+    end
+
+    clone.Parent = originalWeapon
+    weldingParts(handle, clone.PrimaryPart)
+    clone:SetPrimaryPartCFrame(handle.CFrame)
+    handle.Transparency = 1
+end
+
+local function Changerr()
+    for weaponName, skinName in pairs(Skins) do
+        if weaponName ~= "Enabled" and weaponName ~= "Special" then
+            local weapon = Backpack:FindFirstChild("[" .. weaponName .. "]")
+            if weapon then
+                local skinFolder = ReplicatedStorage.Wraps:FindFirstChild("[" .. weaponName .. "]")
+                if skinFolder then
+                    local skinModel = skinFolder:FindFirstChild(skinName)
+                    if skinModel then
+                        applySkin(weapon, skinModel)
+                    end
+                end
+            end
+        end
+    end
+
+    for knifeName, skinName in pairs(Skins.Special) do
+        local knife = Backpack:FindFirstChild("[" .. knifeName .. "]")
+        if knife then
+            local skinModel = ReplicatedStorage.Knives:FindFirstChild(skinName)
+            if skinModel then
+                applySkin(knife, skinModel)
+            end
+        end
+    end
+end
+
+if Skins.Enabled then
+    Changerr()
+end
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+    wait(1)
+    Backpack = LocalPlayer:FindFirstChild("Backpack")
+    if Backpack then
+        Changerr()
+    end
+end)
+
+local SkinChanger = ObeseAddons:Section({Name = "Hood Customs Skin Changer", Side = "left"})
+
+SkinChanger:Toggle({Name = "Enable Skin Changer", Flag = "EnableSkinChanger", Def = true, Callback = function(v) 
+    Skins.Enabled = v
+    if v then
+        Changerr()
+    end
+end})
+
+local gunSkinOptions = {"Ascension", "Void Dragon", "Hell Hound", "Snow Dragon", "Lovestruck", "Adurite", "Hallows", "Candy Cane", "Heartbringer", "Arctic", "Lightbringer", "Deathbringer", "Hell Dragon", "Kitty", "Kirumi", "Shiryus Breath", "Poseidon", "Amethyst", "Arsenic", "Volcanic Ashes", "Floral", "Binary", "Voxel", "Hello Kitty", "Radiation", "Void", "Hexagram", "Strawberry Shortcake", "Black Ice", "Crimson Fangs", "Green Tint", "Ember", "Cupid"}
+
+local knifeSkinOptions = {"Beta", "Fishbone"}
+
+SkinChanger:List({Name = "DoubleBarrel Skin", Flag = "DoubleBarrelSkin", Options = gunSkinOptions, Default = "Ascension", CallBack = function(v)
+    Skins["DoubleBarrel"] = v
+    if Skins.Enabled then
+        Changerr()
+    end
+end})
+
+SkinChanger:List({Name = "Revolver Skin", Flag = "RevolverSkin", Options = gunSkinOptions, Default = "Ascension", CallBack = function(v)
+    Skins["Revolver"] = v
+    if Skins.Enabled then
+        Changerr()
+    end
+end})
+
+SkinChanger:List({Name = "Shotgun Skin", Flag = "ShotgunSkin", Options = gunSkinOptions, Default = "Ascension", CallBack = function(v)
+    Skins["Shotgun"] = v
+    if Skins.Enabled then
+        Changerr()
+    end
+end})
+
+SkinChanger:List({Name = "SMG Skin", Flag = "SMGSkin", Options = gunSkinOptions, Default = "Ascension", CallBack = function(v)
+    Skins["SMG"] = v
+    if Skins.Enabled then
+        Changerr()
+    end
+end})
+
+SkinChanger:List({Name = "TacticalShotgun Skin", Flag = "TacticalShotgunSkin", Options = gunSkinOptions, Default = "Ascension", CallBack = function(v)
+    Skins["TacticalShotgun"] = v
+    if Skins.Enabled then
+        Changerr()
+    end
+end})
+
+SkinChanger:List({Name = "Knife Skin", Flag = "KnifeSkin", Options = knifeSkinOptions, Default = "Beta", CallBack = function(v)
+    Skins.Special["Knife"] = v
+    if Skins.Enabled then
+        Changerr()
+    end
+end})
+
+SkinChanger:Button({Name = "Apply Skins", Callback = function()
+    Changerr()
+end})
+
+local BulletSection = ObeseAddons:Section({Name = "Bullet Tracers", Side = "right"})
+
+local bulletOptions = {"Rainbow", "Red", "Green", "Blue", "Yellow", "Purple", "Orange", "White", "Black"}
+
+BulletSection:List({Name = "DoubleBarrel Tracer", Flag = "DoubleBarrelTracer", Options = bulletOptions, Default = "Rainbow", CallBack = function(v)
+    getgenv().BulletChanger.DoubleBarrel = v
+    if dataFolder then
+        local inventoryData = dataFolder:FindFirstChild("InventoryData")
+        if inventoryData then
+            local bulletBeams = inventoryData:FindFirstChild("BulletBeams")
+            if bulletBeams and bulletBeams:IsA("StringValue") then
+                local bulletBeamData = {}
+                for weapon, skin in pairs(getgenv().BulletChanger) do
+                    local code
+                    if weapon == "DoubleBarrel" then
+                        code = "109d1326878cc594bc1bb42d126250810999782f"
+                    elseif weapon == "Revolver" then
+                        code = "539db315b53f77390c0aa74773158e25bedcdd6e"
+                    elseif weapon == "Shotgun" then
+                        code = "b415a7273aa86cbc2adc445fde5435eb5afababa"
+                    elseif weapon == "SMG" then
+                        code = "005af87725b42ac4ca8103d11af6bf0c7d55f7b3"
+                    elseif weapon == "TacticalShotgun" then
+                        code = "109d1326878cc594bc1bb42d126250810999782f"
+                    end
+                    if code then
+                        bulletBeamData[code] = { Name = skin }
+                    end
+                end
+                bulletBeams.Value = game:GetService("HttpService"):JSONEncode(bulletBeamData)
+            end
+        end
+    end
+end})
+
+BulletSection:List({Name = "Revolver Tracer", Flag = "RevolverTracer", Options = bulletOptions, Default = "Rainbow", CallBack = function(v)
+    getgenv().BulletChanger.Revolver = v
+    if dataFolder then
+        local inventoryData = dataFolder:FindFirstChild("InventoryData")
+        if inventoryData then
+            local bulletBeams = inventoryData:FindFirstChild("BulletBeams")
+            if bulletBeams and bulletBeams:IsA("StringValue") then
+                local bulletBeamData = {}
+                for weapon, skin in pairs(getgenv().BulletChanger) do
+                    local code
+                    if weapon == "DoubleBarrel" then
+                        code = "109d1326878cc594bc1bb42d126250810999782f"
+                    elseif weapon == "Revolver" then
+                        code = "539db315b53f77390c0aa74773158e25bedcdd6e"
+                    elseif weapon == "Shotgun" then
+                        code = "b415a7273aa86cbc2adc445fde5435eb5afababa"
+                    elseif weapon == "SMG" then
+                        code = "005af87725b42ac4ca8103d11af6bf0c7d55f7b3"
+                    elseif weapon == "TacticalShotgun" then
+                        code = "109d1326878cc594bc1bb42d126250810999782f"
+                    end
+                    if code then
+                        bulletBeamData[code] = { Name = skin }
+                    end
+                end
+                bulletBeams.Value = game:GetService("HttpService"):JSONEncode(bulletBeamData)
+            end
+        end
+    end
+end})
+
+BulletSection:Button({Name = "Apply All Tracers", Callback = function()
+    if dataFolder then
+        local inventoryData = dataFolder:FindFirstChild("InventoryData")
+        if inventoryData then
+            local bulletBeams = inventoryData:FindFirstChild("BulletBeams")
+            local equippedBulletBeams = dataFolder:FindFirstChild("EquippedBulletBeams")
+
+            if bulletBeams and bulletBeams:IsA("StringValue") then
+                local bulletBeamData = {}
+                for weapon, skin in pairs(getgenv().BulletChanger) do
+                    local code
+                    if weapon == "DoubleBarrel" then
+                        code = "109d1326878cc594bc1bb42d126250810999782f"
+                    elseif weapon == "Revolver" then
+                        code = "539db315b53f77390c0aa74773158e25bedcdd6e"
+                    elseif weapon == "Shotgun" then
+                        code = "b415a7273aa86cbc2adc445fde5435eb5afababa"
+                    elseif weapon == "SMG" then
+                        code = "005af87725b42ac4ca8103d11af6bf0c7d55f7b3"
+                    elseif weapon == "TacticalShotgun" then
+                        code = "109d1326878cc594bc1bb42d126250810999782f"
+                    end
+                    if code then
+                        bulletBeamData[code] = { Name = skin }
+                    end
+                end
+                bulletBeams.Value = game:GetService("HttpService"):JSONEncode(bulletBeamData)
+            end
+
+            if equippedBulletBeams and equippedBulletBeams:IsA("StringValue") then
+                local equippedData = {}
+                equippedData["[DoubleBarrel]"] = "109d1326878cc594bc1bb42d126250810999782f"
+                equippedData["[Revolver]"] = "539db315b53f77390c0aa74773158e25bedcdd6e"
+                equippedData["[TacticalShotgun]"] = "109d1326878cc594bc1bb42d126250810999782f"
+                equippedData["[SMG]"] = "005af87725b42ac4ca8103d11af6bf0c7d55f7b3"
+                equippedData["[Shotgun]"] = "b415a7273aa86cbc2adc445fde5435eb5afababa"
+
+                equippedBulletBeams.Value = game:GetService("HttpService"):JSONEncode(equippedData)
+            end
+        end
+    end
+end})
