@@ -1,0 +1,171 @@
+local Players = game:GetService("Players")
+
+local HitEffectModule = {
+    Locals = {
+        HitEffect = {
+            Type = {}
+        }
+    }
+}
+
+
+local Attachment = Instance.new("Attachment")
+HitEffectModule.Locals.HitEffect.Type["Skibidi RedRizz"] = Attachment
+
+
+local MainColor = Color3.fromRGB(255, 21, 255)
+
+
+local HealingWave1 = Instance.new("ParticleEmitter")
+HealingWave1.Name = "Healing Wave 1"
+HealingWave1.Lifetime = NumberRange.new(1.5, 1.5)
+HealingWave1.SpreadAngle = Vector2.new(10, -10)
+HealingWave1.LockedToPart = true
+HealingWave1.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.1702454, 0.7, 0.014881), NumberSequenceKeypoint.new(0.2254601, 0.03125, 0.03125), NumberSequenceKeypoint.new(0.2852761, 0), NumberSequenceKeypoint.new(0.702454, 0), NumberSequenceKeypoint.new(0.8374233, 0.9125, 0.0601461), NumberSequenceKeypoint.new(1, 1)})
+HealingWave1.LightEmission = 0.4
+HealingWave1.Color = ColorSequence.new(MainColor)
+HealingWave1.VelocitySpread = 10
+HealingWave1.Speed = NumberRange.new(3, 6)
+HealingWave1.Brightness = 10
+HealingWave1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 3.0624998, 1.8805969), NumberSequenceKeypoint.new(0.6420546, 1.9999999, 1.7619393), NumberSequenceKeypoint.new(1, 0.7499999, 0.7499999)})
+HealingWave1.Rate = 20
+HealingWave1.Texture = "rbxassetid://8047533775"
+HealingWave1.RotSpeed = NumberRange.new(200, 400)
+HealingWave1.Rotation = NumberRange.new(-180, 180)
+HealingWave1.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
+HealingWave1.Parent = Attachment
+
+local HealingWave2 = Instance.new("ParticleEmitter")
+HealingWave2.Name = "Healing Wave 2"
+HealingWave2.Lifetime = NumberRange.new(1.5, 1.5)
+HealingWave2.SpreadAngle = Vector2.new(10, -10)
+HealingWave2.LockedToPart = true
+HealingWave2.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.2254601, 0.03125, 0.03125), NumberSequenceKeypoint.new(0.6288344, 0.25625, 0.0593491), NumberSequenceKeypoint.new(0.8374233, 0.9125, 0.0601461), NumberSequenceKeypoint.new(1, 1)})
+HealingWave2.LightEmission = 1
+HealingWave2.Color = ColorSequence.new(MainColor)
+HealingWave2.VelocitySpread = 10
+HealingWave2.Speed = NumberRange.new(3, 5)
+HealingWave2.Brightness = 10
+HealingWave2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 3.125), NumberSequenceKeypoint.new(0.4165329, 1.3749999, 1.3749999), NumberSequenceKeypoint.new(1, 0.9375, 0.9375)})
+HealingWave2.Rate = 20
+HealingWave2.Texture = "rbxassetid://8047796070"
+HealingWave2.RotSpeed = NumberRange.new(100, 300)
+HealingWave2.Rotation = NumberRange.new(-180, 180)
+HealingWave2.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
+HealingWave2.Parent = Attachment
+
+local Sparks = Instance.new("ParticleEmitter")
+Sparks.Name = "Sparks"
+Sparks.Lifetime = NumberRange.new(0.5, 2)
+Sparks.SpreadAngle = Vector2.new(180, -180)
+Sparks.LightEmission = 1
+Sparks.Color = ColorSequence.new(MainColor)
+Sparks.Drag = 3
+Sparks.VelocitySpread = 180
+Sparks.Speed = NumberRange.new(5, 15)
+Sparks.Brightness = 10
+Sparks.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.14687, 0.4374999, 0.1875001), NumberSequenceKeypoint.new(1, 0)})
+Sparks.Acceleration = Vector3.new(0, 3, 0)
+Sparks.ZOffset = -1
+Sparks.Rate = 40
+Sparks.Texture = "rbxassetid://8611887361"
+Sparks.RotSpeed = NumberRange.new(-30, 30)
+Sparks.Orientation = Enum.ParticleOrientation.VelocityParallel
+Sparks.Parent = Attachment
+
+local StarSparks = Instance.new("ParticleEmitter")
+StarSparks.Name = "Star Sparks"
+StarSparks.Lifetime = NumberRange.new(1.5, 1.5)
+StarSparks.SpreadAngle = Vector2.new(180, -180)
+StarSparks.LightEmission = 1
+StarSparks.Color = ColorSequence.new(MainColor)
+StarSparks.Drag = 3
+StarSparks.VelocitySpread = 180
+StarSparks.Speed = NumberRange.new(5, 10)
+StarSparks.Brightness = 10
+StarSparks.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.1492777, 0.6874996, 0.6874996), NumberSequenceKeypoint.new(1, 0)})
+StarSparks.Acceleration = Vector3.new(0, 3, 0)
+StarSparks.ZOffset = 2
+StarSparks.Texture = "rbxassetid://8611887703"
+StarSparks.RotSpeed = NumberRange.new(-30, 30)
+StarSparks.Rotation = NumberRange.new(-30, 30)
+StarSparks.Parent = Attachment
+
+
+local function updateColor(color)
+    MainColor = color
+    HealingWave1.Color = ColorSequence.new(color)
+    HealingWave2.Color = ColorSequence.new(color)
+    Sparks.Color = ColorSequence.new(color)
+    StarSparks.Color = ColorSequence.new(color)
+end
+
+local function spawn()
+    local player = Players.LocalPlayer
+
+    Attachment.Parent = player.Character.LowerTorso
+
+    StarSparks.Enabled = true
+    Sparks.Enabled = true
+    HealingWave1.Enabled = true
+    HealingWave2.Enabled = true
+end
+
+
+local EffectSettings = ObeseAddons:Section({Name = "Heal Aura", Side = "right"})
+
+
+EffectSettings:Toggle({Name = "Enable Effect", Flag = "EnableEffect", Def = true, Callback = function(v) 
+    StarSparks.Enabled = v
+    Sparks.Enabled = v
+    HealingWave1.Enabled = v
+    HealingWave2.Enabled = v
+end})
+
+
+EffectSettings:Colorpicker({Name = "Effect Color", Flag = "EffectColor", Default = MainColor, Callback = function(v) 
+    updateColor(v)
+end})
+
+
+EffectSettings:Slider({Name = "Particle Rate", Flag = "ParticleRate", Suffix = " p/s", Min = 5, Max = 50, Default = 20, Decimals = 1, Callback = function(v)
+    HealingWave1.Rate = v
+    HealingWave2.Rate = v
+    Sparks.Rate = v * 2  
+    StarSparks.Rate = v
+end})
+
+EffectSettings:Slider({Name = "Particle Size", Flag = "ParticleSize", Suffix = "x", Min = 0.5, Max = 2, Default = 1, Decimals = 0.1, Callback = function(v)
+  
+    local wave1Size = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 3.0624998 * v, 1.8805969 * v), 
+        NumberSequenceKeypoint.new(0.6420546, 1.9999999 * v, 1.7619393 * v), 
+        NumberSequenceKeypoint.new(1, 0.7499999 * v, 0.7499999 * v)
+    })
+    
+    local wave2Size = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 3.125 * v), 
+        NumberSequenceKeypoint.new(0.4165329, 1.3749999 * v, 1.3749999 * v), 
+        NumberSequenceKeypoint.new(1, 0.9375 * v, 0.9375 * v)
+    })
+    
+    local sparksSize = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0), 
+        NumberSequenceKeypoint.new(0.14687, 0.4374999 * v, 0.1875001 * v), 
+        NumberSequenceKeypoint.new(1, 0)
+    })
+    
+    local starSparksSize = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0), 
+        NumberSequenceKeypoint.new(0.1492777, 0.6874996 * v, 0.6874996 * v), 
+        NumberSequenceKeypoint.new(1, 0)
+    })
+    
+    HealingWave1.Size = wave1Size
+    HealingWave2.Size = wave2Size
+    Sparks.Size = sparksSize
+    StarSparks.Size = starSparksSize
+end})
+
+
+spawn()
